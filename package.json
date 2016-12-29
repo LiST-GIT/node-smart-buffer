@@ -1,0 +1,24 @@
+{
+  "name": "node-smart-buffer",
+  "version": "0.0.1",
+  "description": "ring buffer & packet compile",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LiST-GIT/node-smart-buffer.git"
+  },
+  "keywords": [
+    "ring-buffer",
+    "buffer",
+    "packet"
+  ],
+  "author": "LiST",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/LiST-GIT/node-smart-buffer/issues"
+  },
+  "homepage": "https://github.com/LiST-GIT/node-smart-buffer"
+}
