@@ -49,6 +49,15 @@ module.exports.InputBuffer = class InputBuffer {
 		this.length += data.length;
 		return this;
 	}
+	discard( length ) {
+		if ( this.length < length ) {
+			throw new RangeError( 'index out of range' );
+		}
+		this.start += length;
+		this.length -= length;
+		this.cursor = 0;
+		return this;
+	}
 	read( length ) {
 		if ( this.length - this.cursor < length ) {
 			throw new RangeError( 'index out of range' );
