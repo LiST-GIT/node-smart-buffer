@@ -275,6 +275,8 @@ module.exports.compile = function( source ) {
 	const container = {
 		encode: {},
 		decode: {},
+		indexed: {},
+		attribute: {},
 	};
 	const names = [];
 	var encode = [ `( {` ];
@@ -282,47 +284,63 @@ module.exports.compile = function( source ) {
 	for ( const name in source ) {
 		if ( source[ name ] instanceof Array ) {
 			names.push( name );
+			container.attribute[ name ] = {};
 			encode.push( `${name}: function( buffer, data ) {` );
 			decode.push( `${name}: function( buffer ) {` );
 			decode.push( `const data = {};` );
-			source[ name ].forEach( ( expr, index ) => {
+			for ( var index = 0; index < source[ name ].length; index++ ) {
+				var expr = source[ name ][ index ];
 				switch ( typeof expr ) {
 				case 'string': {
-					expr = /^(.*):(.+?)(\[(.+)\]|)$/.exec( expr );
-					const name = expr[ 1 ] || '_' + index;
-					const format = expr[ 2 ];
-					const corner = expr[ 4 ];
+					if ( expr[ 0 ] === '@' ) {
+						index++;
+						switch ( expr ) {
+						case '@attribute':
+							Object.assign( container.attribute[ name ], source[ name ][ index ] );
+							break;
+						}
+						break;
+					}
+					const detail = /^(.*):(.+?)(\[(.+)\]|)$/.exec( expr );
+					if ( detail === null ) {
+						encode.push( expr );
+						decode.push( expr );
+						break;
+					}
+					const attr = detail[ 1 ] || '_' + index;
+					const format = detail[ 2 ];
+					const corner = detail[ 4 ];
 					if ( corner ) {
 						if ( source[ corner ] ) {
-							encode.push( `this.${corner}( buffer, data.${name}.length );` );
+							encode.push( `this.${corner}( buffer, data.${attr}.length );` );
 						} else {
-							encode.push( `buffer.${corner}( data.${name}.length );` );
+							encode.push( `buffer.${corner}( data.${attr}.length );` );
 						}
-						encode.push( `for( var index = 0; index < data.${name}.length; index++ )` );
+						encode.push( `for( var index = 0; index < data.${attr}.length; index++ )` );
 						if ( source[ format ] ) {
-							encode.push( `this.${format}( buffer, data.${name}[ index ] );` );
+							encode.push( `this.${format}( buffer, data.${attr}[ index ] );` );
 						} else {
-							encode.push( `buffer.${format}( data.${name}[ index ] );` );
+							encode.push( `buffer.${format}( data.${attr}[ index ] );` );
 						}
 
-						decode.push( `data.${name} = [];` );
+						decode.push( `data.${attr} = [];` );
 						if ( source[ corner ] ) {
 							decode.push( `for ( var index = 0, length = this.${corner}( buffer ); index < length; index++ )` );
 						} else {
 							decode.push( `for ( var index = 0, length = buffer.${corner}(); index < length; index++ )` );
 						}
 						if ( source[ format ] ) {
-							decode.push( `data.${name}[ index ] = this.${format}( buffer );` );
+							decode.push( `data.${attr}[ index ] = this.${format}( buffer );` );
 						} else {
-							decode.push( `data.${name}[ index ] = buffer.${format}();` );
+							decode.push( `data.${attr}[ index ] = buffer.${format}();` );
 						}
 					} else {
 						if ( source[ format ] ) {
-							encode.push( `this.${format}( buffer, data.${name} );` );
-							decode.push( `data.${name} = this.${format}( buffer );` );
+							encode.push( `this.${format}( buffer, data.${attr} );` );
+							decode.push( `data.${attr} = this.${format}( buffer );` );
 						} else {
-							encode.push( `buffer.${format}( data.${name} );` );
-							decode.push( `data.${name} = buffer.${format}();` );
+							encode.push( `buffer.${format}( data.${attr} );` );
+							decode.push( `data.${attr} = buffer.${format}();` );
 						}
 					}
 					break;
@@ -345,10 +363,13 @@ module.exports.compile = function( source ) {
 					}
 					break;
 				}
-			} );
+			}
 			encode.push( `},` );
 			decode.push( `return data;` );
 			decode.push( `},` );
+			if ( 'index' in container.attribute[ name ] ) {
+				container.indexed[ container.attribute[ name ].index ] = name;
+			}
 		} else if ( source[ name ] instanceof Object ) {
 			container.encode[ name ] = source[ name ].encode;
 			container.decode[ name ] = source[ name ].decode;
