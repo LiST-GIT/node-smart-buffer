@@ -1,6 +1,6 @@
 #环形缓冲区 & 数据包序列化/反序列化
 
-###下载
+###安装
 `
 npm install node-smart-buffer
 `
