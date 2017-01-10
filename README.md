@@ -5,8 +5,7 @@
 npm install node-smart-buffer
 `
 
-###InputBuffer/OutputBuffer
-
+###InputBuffer/OutputBuffer Interface
 ```javascript
 smartbuffer.InputBuffer.length
 smartbuffer.InputBuffer.endain = smartbuffer.LE | smartbuffer.BE;
