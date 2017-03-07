@@ -3,8 +3,8 @@ const BE = module.exports.BE = Symbol( 'BE' );
 const LE = module.exports.LE = Symbol( 'LE' );
 
 module.exports.InputBuffer = class InputBuffer {
-	constructor() {
-		this.endian = BE;
+	constructor( endian ) {
+		this.endian = endian || BE;
 		this.buffer = Buffer.allocUnsafe( maximum + 7 );
 		this.clear();
 	}
@@ -148,8 +148,8 @@ module.exports.InputBuffer = class InputBuffer {
 };
 
 module.exports.OutputBuffer = class OutputBuffer {
-	constructor() {
-		this.endian = BE;
+	constructor( endian ) {
+		this.endian = endian || BE;
 		this.buffer = Buffer.allocUnsafe( maximum );
 		this.clear();
 	}

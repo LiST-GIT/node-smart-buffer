@@ -8,7 +8,7 @@ npm install node-smart-buffer
 ###InputBuffer/OutputBuffer Interface
 ```javascript
 smartbuffer.InputBuffer.length
-smartbuffer.InputBuffer.endain = smartbuffer.LE | smartbuffer.BE;
+smartbuffer.InputBuffer.endian = smartbuffer.LE | smartbuffer.BE;
 smartbuffer.InputBuffer.clear()
 smartbuffer.InputBuffer.reset()
 smartbuffer.InputBuffer.skip( cursor )
@@ -25,7 +25,7 @@ smartbuffer.InputBuffer.float()
 smartbuffer.InputBuffer.double()
 
 smartbuffer.OutputBuffer.length
-smartbuffer.OutputBuffer.endain = smartbuffer.LE | smartbuffer.BE;
+smartbuffer.OutputBuffer.endian = smartbuffer.LE | smartbuffer.BE;
 smartbuffer.OutputBuffer.clear()
 smartbuffer.OutputBuffer.skip( cursor )
 smartbuffer.OutputBuffer.skipTo( cursor )
