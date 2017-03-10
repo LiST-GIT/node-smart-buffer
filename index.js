@@ -176,6 +176,9 @@ module.exports.OutputBuffer = class OutputBuffer {
 		return this.buffer.slice( 0, this.length );
 	}
 	write( data ) {
+		if ( typeof data === 'string' ) {
+			data = Buffer.from( data );
+		}
 		if ( this.cursor + data.length > this.buffer.length ) {
 			throw new RangeError( 'index out of range' );
 		}
