@@ -1,13 +1,13 @@
 
-#环形缓冲区 & 数据包序列化/反序列化
+# 环形缓冲区 & 数据包序列化/反序列化
 
-###安装
+### 安装
 
 ```
 npm install node-smart-buffer
 ```
 
-###InputBuffer/OutputBuffer Interface
+### InputBuffer/OutputBuffer Interface
 
 ```javascript
 smartbuffer.InputBuffer.length
@@ -42,7 +42,7 @@ smartbuffer.OutputBuffer.float( number )
 smartbuffer.OutputBuffer.double( number )
 ```
 
-###示例
+### 示例
 
 ```javascript
 
