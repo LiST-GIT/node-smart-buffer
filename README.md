@@ -7,7 +7,7 @@
 npm install node-smart-buffer
 ```
 
-### InputBuffer/OutputBuffer Interface
+### InputBuffer/OutputBuffer接口
 
 ```javascript
 smartbuffer.InputBuffer.length
