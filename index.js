@@ -278,8 +278,8 @@ module.exports.compile = function( source ) {
 	const container = {
 		encode: {},
 		decode: {},
+		storage: {},
 		indexed: {},
-		attribute: {},
 	};
 	const names = [];
 	var encode = [ `( {` ];
@@ -287,7 +287,7 @@ module.exports.compile = function( source ) {
 	for ( const name in source ) {
 		if ( source[ name ] instanceof Array ) {
 			names.push( name );
-			container.attribute[ name ] = {};
+			container.storage[ name ] = {};
 			encode.push( `${name}: function( buffer, data ) {` );
 			decode.push( `${name}: function( buffer ) {` );
 			decode.push( `const data = {};` );
@@ -295,11 +295,11 @@ module.exports.compile = function( source ) {
 				var expr = source[ name ][ index ];
 				switch ( typeof expr ) {
 				case 'string': {
-					if ( expr[ 0 ] === '@' ) {
+					if ( expr.startsWith( '.' ) ) {
 						index++;
 						switch ( expr ) {
-						case '@attribute':
-							Object.assign( container.attribute[ name ], source[ name ][ index ] );
+						case '.attributes':
+							Object.assign( container.storage[ name ], source[ name ][ index ] );
 							break;
 						}
 						break;
@@ -370,8 +370,8 @@ module.exports.compile = function( source ) {
 			encode.push( `},` );
 			decode.push( `return data;` );
 			decode.push( `},` );
-			if ( 'index' in container.attribute[ name ] ) {
-				container.indexed[ container.attribute[ name ].index ] = name;
+			if ( 'index' in container.storage[ name ] ) {
+				container.indexed[ container.storage[ name ].index ] = name;
 			}
 		} else if ( source[ name ] instanceof Object ) {
 			container.encode[ name ] = source[ name ].encode;

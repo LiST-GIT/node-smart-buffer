@@ -62,7 +62,7 @@ const packet = smartbuffer.compile( {
         },
     },
     DEMO: [
-        '@attribute',                 // 自动命名 _0
+        '.attributes',                // 自动命名 _0
         {                             // 自动命名 _1
             index: 100,               // 设置索引
             a: 1,
@@ -126,6 +126,6 @@ console.log( packet.indexed );
 // { '100': 'DEMO' }
 
 // 自定义属性
-console.log( packet.attribute );
+console.log( packet.storage );
 // { DEMO: { index: 100, a: 1, b: 2, c: 3 }, DEMO2: {} }
 ```
