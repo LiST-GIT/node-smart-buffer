@@ -36,8 +36,8 @@ module.exports.InputBuffer = class InputBuffer {
 		return this.length - this.cursor;
 	}
 	add( data ) {
-		if ( this.buffer.length - this.length <= 0 ) {
-			throw new RangeError( 'index out of range' );
+		if ( this.buffer.length - 7 - this.length < data.length ) {
+			throw new RangeError( 'buffer overflow' );
 		}
 		const start = this.start + this.length;
 		for ( var index = 0; index < data.length; index++ ) {
