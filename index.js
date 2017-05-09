@@ -382,9 +382,7 @@ module.exports.compile = function( source ) {
 	decode.push( `} )` );
 	encode = eval( encode.join( '\n' ) );
 	decode = eval( decode.join( '\n' ) );
-	names.forEach( ( name ) => {
-		container.encode[ name ] = encode[ name ];
-		container.decode[ name ] = decode[ name ];
-	} );
+	names.forEach( ( name ) => container.encode[ name ] = encode[ name ] );
+	names.forEach( ( name ) => container.decode[ name ] = decode[ name ] );
 	return container;
 };
