@@ -1,4 +1,4 @@
-const maximum = Math.pow( 2, 16 ) - 1;
+const maximum = Math.pow( 2, 17 ) - 1;
 const BE = module.exports.BE = Symbol( 'BE' );
 const LE = module.exports.LE = Symbol( 'LE' );
 
