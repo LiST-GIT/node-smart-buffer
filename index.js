@@ -392,8 +392,6 @@ module.exports.compile = function( source ) {
 	}
 	encode.push( `} )` );
 	decode.push( `} )` );
-	console.log( encode.join( '\n' ) );
-	console.log( decode.join( '\n' ) );
 	encode = eval( encode.join( '\n' ) );
 	decode = eval( decode.join( '\n' ) );
 	names.forEach( ( name ) => container.encode[ name ] = encode[ name ] );
