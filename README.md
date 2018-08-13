@@ -85,6 +85,8 @@ const packet = smartbuffer.compile( {
         `if ( data.name === "Job" ) {`,     // 直接使用
             'a:uint32',
         `}`,
+        'b:uint8[5]',
+        'c:uint8[.a]',
     ],
     DEMO2: [
         'value:utf8',

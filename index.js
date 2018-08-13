@@ -317,7 +317,13 @@ module.exports.compile = function( source ) {
 						if ( source[ corner ] ) {
 							encode.push( `this.${corner}( buffer, data.${attr}.length );` );
 						} else {
-							encode.push( `buffer.${corner}( data.${attr}.length );` );
+							if ( parseInt( corner ) == corner.trim() ) {
+								encode.push( `data.${attr}.length = ${parseInt(corner)};` );
+							} else if ( corner.startsWith( '.' ) ) {
+								encode.push( `data.${attr}.length = data${corner};` );
+							} else {
+								encode.push( `buffer.${corner}( data.${attr}.length );` );
+							}
 						}
 						encode.push( `for( var index = 0; index < data.${attr}.length; index++ )` );
 						if ( source[ format ] ) {
@@ -330,7 +336,13 @@ module.exports.compile = function( source ) {
 						if ( source[ corner ] ) {
 							decode.push( `for ( var index = 0, length = this.${corner}( buffer ); index < length; index++ )` );
 						} else {
-							decode.push( `for ( var index = 0, length = buffer.${corner}(); index < length; index++ )` );
+							if ( parseInt( corner ) == corner.trim() ) {
+								decode.push( `for ( var index = 0, length = ${parseInt(corner)}; index < length; index++ )` );
+							} else if ( corner.startsWith( '.' ) ) {
+								decode.push( `for ( var index = 0, length = data${corner}; index < length; index++ )` );
+							} else {
+								decode.push( `for ( var index = 0, length = buffer.${corner}(); index < length; index++ )` );
+							}
 						}
 						if ( source[ format ] ) {
 							decode.push( `data.${attr}[ index ] = this.${format}( buffer );` );
@@ -380,6 +392,8 @@ module.exports.compile = function( source ) {
 	}
 	encode.push( `} )` );
 	decode.push( `} )` );
+	console.log( encode.join( '\n' ) );
+	console.log( decode.join( '\n' ) );
 	encode = eval( encode.join( '\n' ) );
 	decode = eval( decode.join( '\n' ) );
 	names.forEach( ( name ) => container.encode[ name ] = encode[ name ] );
