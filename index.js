@@ -252,6 +252,7 @@ module.exports.OutputBuffer = class OutputBuffer {
 			this.buffer[ this.cursor++ ] = number[ 2 ];
 			this.buffer[ this.cursor++ ] = number[ 1 ];
 			this.buffer[ this.cursor++ ] = number[ 0 ];
+			this.length = Math.max( this.length, this.cursor );
 		}
 		return this;
 	}
