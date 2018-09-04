@@ -244,7 +244,14 @@ module.exports.OutputBuffer = class OutputBuffer {
 		if ( this.endian === BE ) {
 			this.write( number );
 		} else {
-			this.write( number.swap64() );
+			this.buffer[ this.cursor++ ] = number[ 7 ];
+			this.buffer[ this.cursor++ ] = number[ 6 ];
+			this.buffer[ this.cursor++ ] = number[ 5 ];
+			this.buffer[ this.cursor++ ] = number[ 4 ];
+			this.buffer[ this.cursor++ ] = number[ 3 ];
+			this.buffer[ this.cursor++ ] = number[ 2 ];
+			this.buffer[ this.cursor++ ] = number[ 1 ];
+			this.buffer[ this.cursor++ ] = number[ 0 ];
 		}
 		return this;
 	}
