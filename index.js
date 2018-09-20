@@ -312,7 +312,7 @@ module.exports.compile = function( source ) {
 						}
 						break;
 					}
-					const detail = /^(.*):(.+?)(\[(.+)\]|)$/.exec( expr );
+					const detail = /^(\s*[$_a-z0-9]*\s*):(\s*[$_a-z0-9]+?\s*)\s*(\[\s*([$_a-z0-9.][$_a-z0-9]*)\s*\]|)\s*$/i.exec( expr );
 					if ( detail === null ) {
 						encode.push( expr );
 						decode.push( expr );
