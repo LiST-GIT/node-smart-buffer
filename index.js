@@ -5,7 +5,7 @@ const LE = module.exports.LE = Symbol( 'LE' );
 module.exports.InputBuffer = class InputBuffer {
 	constructor( endian ) {
 		this.endian = endian || BE;
-		this.buffer = Buffer.allocUnsafe( maximum + 7 );
+		this.buffer = Buffer.allocUnsafe( maximum + 1 + 7 );
 		this.clear();
 	}
 	clear() {
@@ -43,8 +43,8 @@ module.exports.InputBuffer = class InputBuffer {
 		for ( var index = 0; index < data.length; index++ ) {
 			this.buffer[ start + index & maximum ] = data[ index ];
 		}
-		for ( var index = 1; index < 8; index++ ) {
-			this.buffer[ maximum + index ] = this.buffer[ index ];
+		for ( var index = 0; index < 8; index++ ) {
+			this.buffer[ maximum + 1 + index ] = this.buffer[ index ];
 		}
 		this.length += data.length;
 		return this;
