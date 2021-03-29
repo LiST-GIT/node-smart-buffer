@@ -287,7 +287,18 @@ module.exports.compile = function( source ) {
 		encode: {},
 		decode: {},
 		storage: {},
-		indexed: {},
+		indexes: {},
+		findNameByIndex: function( index, value ) {
+			if ( this.indexes[ index ] == null ) {
+				const table = this.indexes[ index ] = {};
+				for ( const name in this.storage ) {
+					if ( index in this.storage[ name ] ) {
+						table[ this.storage[ name ][ index ] ] = name;
+					}
+				}
+			}
+			return this.indexes[ index ][ value ];
+		},
 	};
 	const names = [];
 	var encode = [ `( {` ];
@@ -390,9 +401,6 @@ module.exports.compile = function( source ) {
 			encode.push( `},` );
 			decode.push( `return data;` );
 			decode.push( `},` );
-			if ( 'index' in container.storage[ name ] ) {
-				container.indexed[ container.storage[ name ].index ] = name;
-			}
 		} else if ( source[ name ] instanceof Object ) {
 			container.encode[ name ] = source[ name ].encode;
 			container.decode[ name ] = source[ name ].decode;
