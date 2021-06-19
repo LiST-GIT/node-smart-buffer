@@ -202,11 +202,13 @@ module.exports.OutputBuffer = class OutputBuffer {
 			throw new RangeError( 'index out of range' );
 		}
 		if ( this.endian === BE ) {
-			this.buffer.writeUInt16BE( number, this.cursor );
+			this.buffer[ this.cursor++ ] = number >>> 8;
+			this.buffer[ this.cursor++ ] = number >>> 0;
 		} else {
-			this.buffer.writeUInt16LE( number, this.cursor );
+			this.buffer[ this.cursor++ ] = number >>> 0;
+			this.buffer[ this.cursor++ ] = number >>> 8;
 		}
-		this.length = Math.max( this.length, this.cursor += 2 );
+		this.length = Math.max( this.length, this.cursor );
 		return this;
 	}
 	int32( number ) {
@@ -217,11 +219,17 @@ module.exports.OutputBuffer = class OutputBuffer {
 			throw new RangeError( 'index out of range' );
 		}
 		if ( this.endian === BE ) {
-			this.buffer.writeUInt32BE( number, this.cursor );
+			this.buffer[ this.cursor++ ] = number >>> 24;
+			this.buffer[ this.cursor++ ] = number >>> 16;
+			this.buffer[ this.cursor++ ] = number >>> 8;
+			this.buffer[ this.cursor++ ] = number >>> 0;
 		} else {
-			this.buffer.writeUInt32LE( number, this.cursor );
+			this.buffer[ this.cursor++ ] = number >>> 0;
+			this.buffer[ this.cursor++ ] = number >>> 8;
+			this.buffer[ this.cursor++ ] = number >>> 16;
+			this.buffer[ this.cursor++ ] = number >>> 24;
 		}
-		this.length = Math.max( this.length, this.cursor += 4 );
+		this.length = Math.max( this.length, this.cursor );
 		return this;
 	}
 	int64( number ) {
