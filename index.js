@@ -1,11 +1,11 @@
-const maximum = Math.pow( 2, 17 ) - 1;
 const BE = module.exports.BE = Symbol( 'BE' );
 const LE = module.exports.LE = Symbol( 'LE' );
 
 module.exports.InputBuffer = class InputBuffer {
-	constructor( endian ) {
+	constructor( endian, bufferSize ) {
 		this.endian = endian || BE;
-		this.buffer = Buffer.allocUnsafe( maximum + 1 + 7 );
+		this.bufferSize = bufferSize || Math.pow( 2, 17 );
+		this.buffer = Buffer.allocUnsafe( this.bufferSize + 7 );
 		this.clear();
 	}
 	clear() {
@@ -36,15 +36,15 @@ module.exports.InputBuffer = class InputBuffer {
 		return this.length - this.cursor;
 	}
 	add( data ) {
-		if ( this.buffer.length - 7 - this.length < data.length ) {
+		if ( this.bufferSize - this.length < data.length ) {
 			throw new RangeError( 'buffer overflow' );
 		}
 		const start = this.start + this.length;
 		for ( var index = 0; index < data.length; index++ ) {
-			this.buffer[ start + index & maximum ] = data[ index ];
+			this.buffer[ ( start + index ) % this.bufferSize ] = data[ index ];
 		}
-		for ( var index = 0; index < 8; index++ ) {
-			this.buffer[ maximum + 1 + index ] = this.buffer[ index ];
+		for ( var index = 0; index < 7; index++ ) {
+			this.buffer[ this.bufferSize + index ] = this.buffer[ index ];
 		}
 		this.length += data.length;
 		return this;
@@ -65,7 +65,7 @@ module.exports.InputBuffer = class InputBuffer {
 		const buffer = Buffer.allocUnsafe( length );
 		const start = this.start + this.cursor;
 		for ( var index = 0; index < length; index++ ) {
-			buffer[ index ] = this.buffer[ start + index & maximum ];
+			buffer[ index ] = this.buffer[ ( start + index ) % this.bufferSize ];
 		}
 		this.cursor += length;
 		return buffer;
@@ -77,7 +77,7 @@ module.exports.InputBuffer = class InputBuffer {
 		if ( this.length - this.cursor < 1 ) {
 			throw new RangeError( 'index out of range' );
 		}
-		return this.buffer[ this.start + this.cursor++ & maximum ];
+		return this.buffer[ ( this.start + this.cursor++ ) % this.bufferSize ];
 	}
 	int16() {
 		return this.uint16() << 16 >> 16;
@@ -86,28 +86,22 @@ module.exports.InputBuffer = class InputBuffer {
 		if ( this.length - this.cursor < 2 ) {
 			throw new RangeError( 'index out of range' );
 		}
+		this.cursor += 2;
 		if ( this.endian === BE ) {
-			return ( this.buffer[ this.start + this.cursor++ & maximum ] << 8 ) |
-			       ( this.buffer[ this.start + this.cursor++ & maximum ] << 0 );
+			return this.buffer.readUInt16BE( ( this.start + this.cursor - 2 ) % this.bufferSize );
 		} else {
-			return ( this.buffer[ this.start + this.cursor++ & maximum ] << 0 ) |
-			       ( this.buffer[ this.start + this.cursor++ & maximum ] << 8 );
+			return this.buffer.readUInt16LE( ( this.start + this.cursor - 2 ) % this.bufferSize );
 		}
 	}
 	int32() {
 		if ( this.length - this.cursor < 4 ) {
 			throw new RangeError( 'index out of range' );
 		}
+		this.cursor += 4;
 		if ( this.endian === BE ) {
-			return ( this.buffer[ this.start + this.cursor++ & maximum ] << 24 ) |
-			       ( this.buffer[ this.start + this.cursor++ & maximum ] << 16 ) |
-			       ( this.buffer[ this.start + this.cursor++ & maximum ] << 8  ) |
-			       ( this.buffer[ this.start + this.cursor++ & maximum ] << 0  );
+			return this.buffer.readInt32BE( ( this.start + this.cursor - 4 ) % this.bufferSize );
 		} else {
-			return ( this.buffer[ this.start + this.cursor++ & maximum ] << 0  ) |
-			       ( this.buffer[ this.start + this.cursor++ & maximum ] << 8  ) |
-			       ( this.buffer[ this.start + this.cursor++ & maximum ] << 16 ) |
-			       ( this.buffer[ this.start + this.cursor++ & maximum ] << 24 );
+			return this.buffer.readInt32LE( ( this.start + this.cursor - 4 ) % this.bufferSize );
 		}
 	}
 	uint32() {
@@ -129,9 +123,9 @@ module.exports.InputBuffer = class InputBuffer {
 		}
 		this.cursor += 4;
 		if ( this.endian === BE ) {
-			return this.buffer.readFloatBE( this.start + this.cursor - 4 & maximum );
+			return this.buffer.readFloatBE( ( this.start + this.cursor - 4 ) % this.bufferSize );
 		} else {
-			return this.buffer.readFloatLE( this.start + this.cursor - 4 & maximum );
+			return this.buffer.readFloatLE( ( this.start + this.cursor - 4 ) % this.bufferSize );
 		}
 	}
 	double() {
@@ -140,17 +134,18 @@ module.exports.InputBuffer = class InputBuffer {
 		}
 		this.cursor += 8;
 		if ( this.endian === BE ) {
-			return this.buffer.readDoubleBE( this.start + this.cursor - 8 & maximum );
+			return this.buffer.readDoubleBE( ( this.start + this.cursor - 8 ) % this.bufferSize );
 		} else {
-			return this.buffer.readDoubleLE( this.start + this.cursor - 8 & maximum );
+			return this.buffer.readDoubleLE( ( this.start + this.cursor - 8 ) % this.bufferSize );
 		}
 	}
 };
 
 module.exports.OutputBuffer = class OutputBuffer {
-	constructor( endian ) {
+	constructor( endian, bufferSize ) {
 		this.endian = endian || BE;
-		this.buffer = Buffer.allocUnsafe( maximum );
+		this.bufferSize = bufferSize || Math.pow( 2, 17 );
+		this.buffer = Buffer.allocUnsafe( this.bufferSize );
 		this.clear();
 	}
 	clear() {
@@ -207,13 +202,11 @@ module.exports.OutputBuffer = class OutputBuffer {
 			throw new RangeError( 'index out of range' );
 		}
 		if ( this.endian === BE ) {
-			this.buffer[ this.cursor++ ] = number >>> 8;
-			this.buffer[ this.cursor++ ] = number >>> 0;
+			this.buffer.writeUInt16BE( number, this.cursor );
 		} else {
-			this.buffer[ this.cursor++ ] = number >>> 0;
-			this.buffer[ this.cursor++ ] = number >>> 8;
+			this.buffer.writeUInt16LE( number, this.cursor );
 		}
-		this.length = Math.max( this.length, this.cursor );
+		this.length = Math.max( this.length, this.cursor += 2 );
 		return this;
 	}
 	int32( number ) {
@@ -224,17 +217,11 @@ module.exports.OutputBuffer = class OutputBuffer {
 			throw new RangeError( 'index out of range' );
 		}
 		if ( this.endian === BE ) {
-			this.buffer[ this.cursor++ ] = number >>> 24;
-			this.buffer[ this.cursor++ ] = number >>> 16;
-			this.buffer[ this.cursor++ ] = number >>> 8;
-			this.buffer[ this.cursor++ ] = number >>> 0;
+			this.buffer.writeUInt32BE( number, this.cursor );
 		} else {
-			this.buffer[ this.cursor++ ] = number >>> 0;
-			this.buffer[ this.cursor++ ] = number >>> 8;
-			this.buffer[ this.cursor++ ] = number >>> 16;
-			this.buffer[ this.cursor++ ] = number >>> 24;
+			this.buffer.writeUInt32LE( number, this.cursor );
 		}
-		this.length = Math.max( this.length, this.cursor );
+		this.length = Math.max( this.length, this.cursor += 4 );
 		return this;
 	}
 	int64( number ) {
